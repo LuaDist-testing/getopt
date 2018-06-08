@@ -3,14 +3,14 @@
 local basedir = require 'findbin' '/..'
 require 'lib' (basedir)
 require 'lib' (basedir .. '/lib')
-require 'DataDumper'
 
 local getopt = require "getopt"
-local tu = require "tableUtils"
+require 'lib.schwartzianTransforms'
 
+--local posix = require "posix"
 --posix.setenv("POSIXLY_CORRECT", 1)
 
---print("Testing getopt version " .. getopt.version())
+-- print("Testing getopt version " .. getopt.version())
 
 
 -- Set up the long options:
@@ -35,8 +35,12 @@ local longopts = { buffy = { has_arg = "no_argument",
 				   val = "1" },
 		   callback = { has_arg = "no_argument",
 				val = "c",
-				-- consume the next argument manually
-				callback = function(optind) print(">> callback with optind "..optind.. " which means the next arg is " .. arg[optind]); getopt.set_optind(getopt.get_optind()+1); end
+				-- consume the next argument manually via a callback
+				callback = function(optind) print(">> I'm consuming the next argument manually: " .. tostring(arg[optind])); getopt.set_optind(getopt.get_optind()+1);  end
+				},
+		   reqargcb = { has_arg = "required_argument",
+				val = "r",
+				callback = function(optind) print(">>> callback w/ arg " .. arg[optind-1]); end
 				},
 		}
 
@@ -44,7 +48,7 @@ local retopts = {}
 
 local daggerset = 0
 
-local ret = getopt.long("bf:", longopts, retopts,
+local ret = getopt.long("a::cbf:r:", longopts, retopts,
 			function(ch) print(">> error?: " .. ch); end)
 
 if (ret) then
@@ -52,6 +56,17 @@ if (ret) then
 else
    print "return code: false"
 end
-print ("options: " .. DataDumper(retopts))
+io.write("options: ")
+print(table.concat(table.map(table.sort(table.keys(retopts)),
+                             function(t,k,r) table.insert(r, tostring(k) .. "=" .. tostring(retopts[k])); end),
+                   ";")
+   )
+
 print("daggerset==" .. daggerset)
 print("optind==" .. getopt.get_optind())
+
+local o = getopt.get_optind()
+while (arg[o]) do
+   print ("Unhandled argument: " .. arg[o])
+   o = o + 1
+end
