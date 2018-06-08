@@ -1,0 +1,27 @@
+getopt library for Lua 5.1+
+
+(c) 2015 Jorj Bauer <jorj@jorj.org>
+
+This is released under a BSD license; see the file LICENSE for details.
+
+**************************
+Installation instructions:
+**************************
+
+You want to use luarocks. You can install this with a simple
+
+   # luarocks make rockspec/getopt-1.0.0-1.rockspec
+
+There is an included Makefile, which did work the last time I tested
+it; it's messy, error prone, and requires that you edit it to suit
+your environment. YMMV.
+
+*****
+Bugs:
+*****
+
+* There is no test suite.
+
+* Much of this code is repurposed from my lua-cyrussasl module. Which
+  means it should be abstracted in some common way, rather than
+  copy-and-pasted.
